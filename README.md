@@ -1,11 +1,15 @@
 AI Disaster Preparedness Assistant
-The AI Disaster Preparedness Assistant is a Flask-based web application designed to help communities, individuals, and organizations better prepare for, respond to, and recover from natural disasters. This project integrates advanced AI models to provide tailored responses and actionable insights through specialized agents.
+The AI Disaster Preparedness Assistant is a Flask-based web application designed to help communities, individuals, and organizations better prepare for, respond to, and recover from natural disasters. 
+
+This project integrates advanced AI models to provide tailored responses and actionable insights through specialized agents.
 
 Features
 Community Education:
 
 Generate disaster preparedness guides for specific community types and geographical locations.
+
 Tailored responses based on cultural, social, and economic factors.
+
 Risk Assessment:
 
 Assess disaster risks for given locations and disaster types.
@@ -14,38 +18,54 @@ Emergency Response:
 
 Create detailed response plans for various disaster scenarios.
 Includes evacuation routes, communication plans, and recovery strategies.
+
+
 Live Updates:
 
 Real-time disaster alerts and updates for specific locations.
 Provides actionable information on ongoing emergencies.
+
+
 Disaster History:
 
 Retrieve historical data on specific disasters in given regions.
 Includes a time-frame filter to focus on recent incidents.
+
+
 Aid Resources:
 
 Detailed information about insurance, government aid programs, and disaster relief schemes.
 Includes eligibility criteria and application procedures.
+
+
 Technologies Used
 Backend
 Flask: Web framework to handle routing and API endpoints.
 LangChain: Framework for managing AI interactions and LLM chains.
 OpenAI API: Integration with advanced language models.
 Google Serper API: Provides real-time search results for live updates and disaster history.
+
 Frontend
 HTML & CSS (TailwindCSS): For responsive and modern UI.
 JavaScript: Handles interactivity, form validation, and API requests.
-Deployment
+
+
 Environment Variables:
 SAMBANOVA_API_KEY: API key for SambaNova's OpenAI-like API.
 SERPER_API_KEY: API key for Google Serper API.
+
+
 Installation
 Clone the Repository:
 
 bash
 Copy code
+
 git clone https://github.com/your-username/ai-disaster-preparedness-assistant.git
+
 cd ai-disaster-preparedness-assistant
+
+
 Set Up a Virtual Environment:
 
 bash
