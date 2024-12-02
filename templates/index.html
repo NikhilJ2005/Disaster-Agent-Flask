@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Disaster Preparedness Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .agent-active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .message-user {
+            background-color: #4f46e5; /* Indigo-600 */
+            color: white;
+            align-self: flex-end;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            max-width: 70%;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        .message-bot {
+            background-color: #374151; /* Gray-700 */
+            color: white;
+            align-self: flex-start;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            max-width: 70%;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+        }
+        .timestamp {
+            font-size: 0.75rem;
+            color: #9ca3af; /* Gray-400 */
+            margin-top: 0.25rem;
+        }
+        .icon-user, .icon-bot {
+            flex-shrink: 0;
+        }
+        /* Spinner Styles */
+        .spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(52, 53, 65, 0.6); /* Semi-transparent overlay */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+        }
+        .spinner {
+            border: 4px solid #f3f4f6; /* Gray-100 */
+            border-top: 4px solid #4f46e5; /* Indigo-600 */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Enhanced List Styling */
+        .message-bot ul, .message-bot ol {
+            margin-left: 1.5rem;
+            margin-top: 1rem; /* Increased top margin */
+            margin-bottom: 1rem; /* Increased bottom margin */
+        }
+        .message-bot li {
+            margin-bottom: 1rem; /* Increased spacing between list items */
+            line-height: 1.6; /* Slightly increased line height */
+        }
+    </style>
+</head>
+<body class="bg-[#343541]">
+    <div class="flex h-screen">
+        <!-- Left Sidebar -->
+        <div class="w-64 bg-[#202123] flex flex-col h-full">
+            <div class="flex-1 overflow-y-auto">
+                <div class="p-2">
+                    <div class="mb-1 px-3 py-2 text-xs text-gray-500">AGENTS</div>
+                    <!-- Community Education -->
+                    <a href="/community-education" class="flex items-center px-3 py-3 text-sm text-white hover:bg-gray-700 rounded-md mb-1 cursor-pointer {% if agent_name == 'Community Education' %}agent-active{% endif %}">
+                        <!-- Community Education Icon -->
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 14l9-5-9-5-9 5 9 5z"></path>
+                            <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
+                        </svg>
+                        Community Education
+                    </a>
+
+                    <!-- Risk Assessment -->
+                    <a href="/risk-assessment" class="flex items-center px-3 py-3 text-sm text-white hover:bg-gray-700 rounded-md mb-1 cursor-pointer {% if agent_name == 'Risk Assessment' %}agent-active{% endif %}">
+                        <!-- Risk Assessment Icon -->
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Risk Assessment
+                    </a>
+
+                    <!-- Emergency Response -->
+                    <a href="/emergency-response" class="flex items-center px-3 py-3 text-sm text-white hover:bg-gray-700 rounded-md mb-1 cursor-pointer {% if agent_name == 'Emergency Response' %}agent-active{% endif %}">
+                        <!-- Emergency Response Icon -->
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                        Emergency Response
+                    </a>
+
+                    <!-- Live Updates -->
+                    <a href="/live-updates" class="flex items-center px-3 py-3 text-sm text-white hover:bg-gray-700 rounded-md mb-1 cursor-pointer {% if agent_name == 'Live Updates' %}agent-active{% endif %}">
+                        <!-- Live Updates Icon -->
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        Live Updates
+                    </a>
+
+                    <!-- Disaster History -->
+                    <a href="/disaster-history" class="flex items-center px-3 py-3 text-sm text-white hover:bg-gray-700 rounded-md mb-1 cursor-pointer {% if agent_name == 'Disaster History' %}agent-active{% endif %}">
+                        <!-- Disaster History Icon -->
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Disaster History
+                    </a>
+
+                    <!-- Aid Resources -->
+                    <a href="/aid-resources" class="flex items-center px-3 py-3 text-sm text-white hover:bg-gray-700 rounded-md mb-1 cursor-pointer {% if agent_name == 'Aid Resources' %}agent-active{% endif %}">
+                        <!-- Aid Resources Icon -->
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                        Aid Resources
+                    </a>
+                </div>
+            </div>
+
+            <!-- Bottom Section -->
+            <div class="border-t border-gray-700 p-2">
+                <a href="/" class="flex items-center px-3 py-3 text-sm text-white hover:bg-gray-700 rounded-md cursor-pointer {% if agent_name == 'Disaster Preparedness Agent' %}agent-active{% endif %}">
+                    <!-- Home Icon -->
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Disaster Preparedness Agent
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col">
+            <!-- Chat History Section or Home Content -->
+            <div class="flex-1 overflow-y-auto p-4">
+                {% if agent_name == 'Disaster Preparedness Agent' %}
+                    <!-- Home Page Content -->
+                    <h1 class="text-4xl font-bold text-white mb-4">Disaster Preparedness Agent</h1>
+                    <p class="text-gray-300 mb-6">
+                        Our project is designed to help communities prepare for, respond to, and recover from natural disasters. Below are the specialized agents available to assist you:
+                    </p>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-800 rounded-md">
+                            <h2 class="text-2xl font-semibold text-white">Community Education</h2>
+                            <p class="text-gray-300">Develop comprehensive guides tailored to specific communities and disaster types.</p>
+                            <p class="text-gray-300">Sample Query: "Create a flood preparedness guide for an urban community."</p>
+                        </div>
+                        <div class="p-4 bg-gray-800 rounded-md">
+                            <h2 class="text-2xl font-semibold text-white">Risk Assessment</h2>
+                            <p class="text-gray-300">Provide detailed risk assessments for various locations and disaster types.</p>
+                            <p class="text-gray-300">Sample Query: "Assess the risk of earthquakes in San Francisco."</p>
+                        </div>
+                        <div class="p-4 bg-gray-800 rounded-md">
+                            <h2 class="text-2xl font-semibold text-white">Emergency Response</h2>
+                            <p class="text-gray-300">Develop comprehensive response plans for different disaster scenarios.</p>
+                            <p class="text-gray-300">Sample Query: "Create a response plan for a hurricane in a coastal town."</p>
+                        </div>
+                        <div class="p-4 bg-gray-800 rounded-md">
+                            <h2 class="text-2xl font-semibold text-white">Live Updates</h2>
+                            <p class="text-gray-300">Provide real-time updates and alerts related to ongoing disasters or emergencies.</p>
+                            <p class="text-gray-300">Sample Query: "Get live updates on the current wildfire in California."</p>
+                        </div>
+                        <div class="p-4 bg-gray-800 rounded-md">
+                            <h2 class="text-2xl font-semibold text-white">Disaster History</h2>
+                            <p class="text-gray-300">Offer detailed histories of specific natural disasters in particular regions, optionally within a specified timeframe.</p>
+                            <p class="text-gray-300">Sample Query: "Provide a history of landslides in Kerala over the past 5 years."</p>
+                        </div>
+                        <div class="p-4 bg-gray-800 rounded-md">
+                            <h2 class="text-2xl font-semibold text-white">Aid Resources</h2>
+                            <p class="text-gray-300">Detail available insurance options, government aid programs, and other assistance schemes.</p>
+                            <p class="text-gray-300">Sample Query: "What government aid is available for flood victims in Texas?"</p>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Agent Page Content -->
+                    <h1 class="text-4xl font-bold text-white mb-4">{{ agent_name }} Assistant</h1>
+                    <!-- Placeholder/Description for the Agent -->
+                    <div class="p-4 bg-gray-800 rounded-md mb-6">
+                        {% if agent_name == 'Community Education' %}
+                            <p class="text-gray-300">The Community Education agent helps you develop comprehensive guides tailored to specific communities, disaster types, and geographical locations.</p>
+                            <p class="text-gray-300">Sample Query: "Create a flood preparedness guide for an urban community in Texas."</p>
+                        {% elif agent_name == 'Risk Assessment' %}
+                            <p class="text-gray-300">The Risk Assessment agent provides detailed assessments of disaster risks for various locations and disaster types.</p>
+                            <p class="text-gray-300">Sample Query: "Assess the risk of earthquakes in San Francisco."</p>
+                        {% elif agent_name == 'Emergency Response' %}
+                            <p class="text-gray-300">The Emergency Response agent helps you develop comprehensive response plans for different disaster scenarios.</p>
+                            <p class="text-gray-300">Sample Query: "Create a response plan for a hurricane in a coastal town."</p>
+                        {% elif agent_name == 'Live Updates' %}
+                            <p class="text-gray-300">The Live Updates agent provides real-time updates and alerts related to ongoing disasters or emergencies.</p>
+                            <p class="text-gray-300">Sample Query: "Get live updates on the current wildfire in California."</p>
+                        {% elif agent_name == 'Disaster History' %}
+                            <p class="text-gray-300">The Disaster History agent offers detailed histories of specific natural disasters in particular regions, optionally within a specified timeframe.</p>
+                            <p class="text-gray-300">Sample Query: "Provide a history of landslides in Kerala over the past 5 years."</p>
+                        {% elif agent_name == 'Aid Resources' %}
+                            <p class="text-gray-300">The Aid Resources agent details available insurance options, government aid programs, and other assistance schemes.</p>
+                            <p class="text-gray-300">Sample Query: "What government aid is available for flood victims in Texas?"</p>
+                        {% endif %}
+                    </div>
+                    <!-- Chat History -->
+                    <div id="chatContainer" class="max-w-3xl mx-auto chat-container">
+                        {% for chat in chat_history %}
+                            <!-- User Message -->
+                            <div class="message-user">
+                                <!-- User Icon -->
+                                <div class="icon-user">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path d="M16 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p><strong>User:</strong> {{ chat.user_message }}</p>
+                                    <p class="timestamp">{{ chat.timestamp }}</p>
+                                </div>
+                            </div>
+                            <!-- Chatbot Response -->
+                            <div class="message-bot">
+                                <!-- Chatbot Icon -->
+                                <div class="icon-bot">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+                                        <polyline points="17 8 12 3 7 8"></polyline>
+                                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p><strong>Assistant:</strong></p>
+                                    <p>{{ chat.response|safe }}</p>
+                                    <p class="timestamp">{{ chat.timestamp }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Input Section -->
+            <div class="border-t border-gray-700 p-4">
+                <div class="max-w-3xl mx-auto relative">
+                    {% if agent_name != 'Disaster Preparedness Agent' %}
+                        <!-- Dynamic Input Fields -->
+                        <div id="additionalInputs" class="mb-4">
+                            {% if agent_name == 'Community Education' %}
+                                <input type="text" id="communityType" class="w-full p-2 mb-2 bg-gray-700 rounded-lg text-white placeholder-gray-400" placeholder="Enter Community Type (e.g., Urban, Rural)">
+                                <input type="text" id="disasterType" class="w-full p-2 mb-2 bg-gray-700 rounded-lg text-white placeholder-gray-400" placeholder="Enter Disaster Type (e.g., Flood, Hurricane)">
+                                <input type="text" id="location" class="w-full p-2 bg-gray-700 rounded-lg text-white placeholder-gray-400" placeholder="Enter Location (e.g., Texas)">
+                            {% elif agent_name == 'Risk Assessment' %}
+                                <input type="text" id="location" class="w-full p-2 mb-2 bg-gray-700 rounded-lg text-white placeholder-gray-400" placeholder="Enter Location (e.g., San Francisco)">
+                                <input type="text" id="disasterType" class="w-full p-2 bg-gray-700 rounded-lg text-white placeholder-gray-400" placeholder="Enter Disaster Type (e.g., Earthquake)">
+                            {% elif agent_name == 'Emergency Response' %}
+                                <input type="text" id="scenario" class="w-full p-2 mb-2 bg-gray-700 rounded-lg text-white placeholder-gray-400" placeholder="Enter Scenario (e.g., Hurricane)">
+                                <input type="text" id="communitySize" class="w-full p-2 bg-gray-700 rounded-lg text-white placeholder-gray-400" placeholder="Enter Community Size (e.g., 5000 residents)">
+                            {% elif agent_name == 'Live Updates' %}
+                                <input type="text" id="disasterType" class="w-full p-2 mb-2 bg-gray-700 rounded-lg text-white placeholder-gray-400" placeholder="Enter Disaster Type (e.g., Wildfire, Flood)">
+                                <input type="text" id="location" class="w-full p-2 bg-gray-700 rounded-lg text-white placeholder-gray-400" placeholder="Enter Location for Live Updates (e.g., California)">
+                            {% elif agent_name == 'Disaster History' %}
+                                <input type="text" id="disasterType" class="w-full p-2 mb-2 bg-gray-700 rounded-lg text-white placeholder-gray-400" placeholder="Enter Disaster Type (e.g., Landslide, Flood)">
+                                <input type="text" id="location" class="w-full p-2 bg-gray-700 rounded-lg text-white placeholder-gray-400" placeholder="Enter Location for Disaster History (e.g., Kerala)">
+                                <input type="text" id="timeframe" class="w-full p-2 mt-2 bg-gray-700 rounded-lg text-white placeholder-gray-400" placeholder="Enter Timeframe (e.g., past 5 years)">
+                            {% elif agent_name == 'Aid Resources' %}
+                                <input type="text" id="location" class="w-full p-2 mb-2 bg-gray-700 rounded-lg text-white placeholder-gray-400" placeholder="Enter Location for Aid Resources (e.g., Texas)">
+                            {% endif %}
+                        </div>
+                        <!-- Message Input and Send Button -->
+                        <div class="flex">
+                            <input type="text" id="userInput" class="flex-1 p-4 bg-gray-700 rounded-l-lg text-white placeholder-gray-400 focus:outline-none" placeholder="Type a message...">
+                            <button id="sendButton" class="px-4 bg-gray-700 rounded-r-lg hover:bg-gray-600">Send</button>
+                        </div>
+                        <!-- Error Message -->
+                        <div id="errorMessage" class="mt-2 text-red-500"></div>
+                        <!-- Spinner Overlay -->
+                        <div id="spinnerOverlay" class="hidden spinner-overlay">
+                            <div class="spinner"></div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <script>
+            {% if agent_name != 'Disaster Preparedness Agent' %}
+                // Function to handle sending a message
+                document.getElementById('sendButton').addEventListener('click', async () => {
+                    const userInput = document.getElementById('userInput').value.trim();
+                    if (!userInput) return;
+
+                    // Show the spinner
+                    document.getElementById('spinnerOverlay').classList.remove('hidden');
+
+                    // Gather additional inputs based on agent
+                    let additionalData = {};
+                    {% if agent_name == 'Community Education' %}
+                        const communityType = document.getElementById('communityType').value.trim();
+                        const disasterType = document.getElementById('disasterType').value.trim();
+                        const location = document.getElementById('location').value.trim();
+                        if (!communityType || !disasterType || !location) {
+                            displayError('Please enter Community Type, Disaster Type, and Location.');
+                            // Hide the spinner
+                            document.getElementById('spinnerOverlay').classList.add('hidden');
+                            return;
+                        }
+                        additionalData = { community_type: communityType, disaster_type: disasterType, location: location };
+                    {% elif agent_name == 'Risk Assessment' %}
+                        const location = document.getElementById('location').value.trim();
+                        const disasterType = document.getElementById('disasterType').value.trim();
+                        if (!location || !disasterType) {
+                            displayError('Please enter both Location and Disaster Type.');
+                            // Hide the spinner
+                            document.getElementById('spinnerOverlay').classList.add('hidden');
+                            return;
+                        }
+                        additionalData = { location: location, disaster_type: disasterType };
+                    {% elif agent_name == 'Emergency Response' %}
+                        const scenario = document.getElementById('scenario').value.trim();
+                        const communitySize = document.getElementById('communitySize').value.trim();
+                        if (!scenario || !communitySize) {
+                            displayError('Please enter both Scenario and Community Size.');
+                            // Hide the spinner
+                            document.getElementById('spinnerOverlay').classList.add('hidden');
+                            return;
+                        }
+                        additionalData = { scenario: scenario, community_size: communitySize };
+                    {% elif agent_name == 'Live Updates' %}
+                        const disasterType = document.getElementById('disasterType').value.trim();
+                        const location = document.getElementById('location').value.trim();
+                        if (!disasterType || !location) {
+                            displayError('Please enter both Disaster Type and Location for Live Updates.');
+                            // Hide the spinner
+                            document.getElementById('spinnerOverlay').classList.add('hidden');
+                            return;
+                        }
+                        additionalData = { disaster_type: disasterType, location: location };
+                    {% elif agent_name == 'Disaster History' %}
+                        const disasterType = document.getElementById('disasterType').value.trim();
+                        const location = document.getElementById('location').value.trim();
+                        const timeframe = document.getElementById('timeframe')?.value.trim(); // Optional
+                        if (!disasterType || !location) {
+                            displayError('Please enter both Disaster Type and Location for Disaster History.');
+                            // Hide the spinner
+                            document.getElementById('spinnerOverlay').classList.add('hidden');
+                            return;
+                        }
+                        additionalData = { disaster_type: disasterType, location: location };
+                        if (timeframe) {
+                            additionalData['timeframe'] = timeframe;
+                        }
+                    {% elif agent_name == 'Aid Resources' %}
+                        const location = document.getElementById('location').value.trim();
+                        if (!location) {
+                            displayError('Please enter Location for Aid Resources.');
+                            // Hide the spinner
+                            document.getElementById('spinnerOverlay').classList.add('hidden');
+                            return;
+                        }
+                        additionalData = { location: location };
+                    {% endif %}
+
+                    try {
+                        // Send POST request to the current agent's route
+                        const response = await fetch(window.location.pathname, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                message: userInput,
+                                ...additionalData
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            // Append user message
+                            appendMessage('User', userInput, null);
+
+                            // Append bot response
+                            appendMessage('{{ agent_name }}', data.result, data.timestamp);
+
+                            // Clear error message
+                            displayError('');
+                        } else {
+                            displayError(`Error: ${data.error}`);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        displayError('An unexpected error occurred. Please try again.');
+                    } finally {
+                        // Hide the spinner
+                        document.getElementById('spinnerOverlay').classList.add('hidden');
+                    }
+
+                    // Clear the user input
+                    document.getElementById('userInput').value = '';
+                });
+
+                // Allow sending messages by pressing Enter
+                document.getElementById('userInput')?.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        document.getElementById('sendButton').click();
+                    }
+                });
+
+                // Function to append messages to the chat container
+                function appendMessage(sender, message, timestamp) {
+                    const chatContainer = document.getElementById('chatContainer');
+
+                    if (sender === 'User') {
+                        const userDiv = document.createElement('div');
+                        userDiv.classList.add('message-user');
+                        userDiv.innerHTML = `
+                            <div class="icon-user">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M16 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </div>
+                            <div>
+                                <p><strong>${sender}:</strong> ${escapeHTML(message)}</p>
+                                ${timestamp ? `<p class="timestamp">${timestamp}</p>` : ''}
+                            </div>
+                        `;
+                        chatContainer.appendChild(userDiv);
+                    } else {
+                        const botDiv = document.createElement('div');
+                        botDiv.classList.add('message-bot');
+                        botDiv.innerHTML = `
+                            <div class="icon-bot">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                            </div>
+                            <div>
+                                <p><strong>Assistant:</strong></p>
+                                <p>${formatResponse(message)}</p>
+                                ${timestamp ? `<p class="timestamp">${timestamp}</p>` : ''}
+                            </div>
+                        `;
+                        chatContainer.appendChild(botDiv);
+                    }
+
+                    // Scroll to the bottom
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }
+
+                // Function to display error messages
+                function displayError(message) {
+                    const errorDiv = document.getElementById('errorMessage');
+                    errorDiv.innerText = message;
+                }
+
+                // Function to format chatbot responses with bullet points and spacing
+                function formatResponse(message) {
+                    // Escape HTML to prevent XSS
+                    let escapedMessage = escapeHTML(message);
+
+                    // Split the message into lines
+                    const lines = escapedMessage.split('\n');
+
+                    let formatted = '';
+                    let inList = false;
+                    let listType = '';
+
+                    lines.forEach(line => {
+                        line = line.trim();
+                        if (line.match(/^(\*|\-|\+) /)) {
+                            // Unordered list
+                            if (!inList || listType !== 'ul') {
+                                if (inList) {
+                                    formatted += `</li></${listType}>`;
+                                }
+                                listType = 'ul';
+                                formatted += `<${listType}><li>${line.replace(/^(\*|\-|\+) /, '')}`;
+                                inList = true;
+                            } else {
+                                formatted += `</li><li>${line.replace(/^(\*|\-|\+) /, '')}`;
+                            }
+                        } else if (line.match(/^\d+\.\s+/)) {
+                            // Ordered list
+                            if (!inList || listType !== 'ol') {
+                                if (inList) {
+                                    formatted += `</li></${listType}>`;
+                                }
+                                listType = 'ol';
+                                const match = line.match(/^(\d+)\.\s+/);
+                                const start = match ? match[1] : '';
+                                if (start) {
+                                    formatted += `<${listType} start="${start}"><li>${line.replace(/^\d+\.\s+/, '')}`;
+                                } else {
+                                    formatted += `<${listType}><li>${line.replace(/^\d+\.\s+/, '')}`;
+                                }
+                                inList = true;
+                            } else {
+                                formatted += `</li><li>${line.replace(/^\d+\.\s+/, '')}`;
+                            }
+                        } else if (line === '') {
+                            // Empty line, close any open lists
+                            if (inList) {
+                                formatted += `</li></${listType}>`;
+                                inList = false;
+                                listType = '';
+                            }
+                        } else {
+                            // Regular paragraph
+                            if (inList) {
+                                formatted += `</li></${listType}>`;
+                                inList = false;
+                                listType = '';
+                            }
+                            formatted += `<p class="mb-2">${line}</p>`;
+                        }
+                    });
+
+                    // Close any remaining open lists
+                    if (inList) {
+                        formatted += `</li></${listType}>`;
+                    }
+
+                    return formatted;
+                }
+
+                // Function to escape HTML to prevent XSS
+                function escapeHTML(text) {
+                    const map = {
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#039;'
+                    };
+                    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+                }
+            {% endif %}
+        </script>
+    </body>
+</html>
+
